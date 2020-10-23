@@ -1,29 +1,39 @@
 // useReducer: simple Counter
-// http://localhost:3000/isolated/exercise/01.js
+// 💯 traditional dispatch object with a type and switch statement
+// http://localhost:3000/isolated/final/01.extra-4.js
 
 import React from 'react'
 
-//we support the function API and the object API
-const countReducer = (state, action) => ({
-  ...state,
-  ...(typeof action === 'function' ? action(state) : action),
-})
+function countReducer(state, action) {
+  switch (action.type) {
+    case 'increment': {
+      return {count: state.count + action.step}
+    }
+    case 'decrement': {
+      if (state.count > 0) {
+        return {count: state.count - action.step}
+      }
+      return state
+    }
+    default: {
+      throw new Error(`Unsupported action type: ${action.type}`)
+    }
+  }
+}
 
 function Counter({initialCount = 0, step = 1}) {
-  //const [state, dispatch] = useReducer(reducer, initialArg, init);
-  const [state, setState] = React.useReducer(countReducer, {
+  const [state, dispatch] = React.useReducer(countReducer, {
     count: initialCount,
   })
   const {count} = state
 
-  // Object API
-  // const increment = () => setState({count: count + step})
-
-  //Function API
-  const increment = () =>
-    setState(currentState => ({count: currentState.count + step}))
-
-  return <button onClick={increment}>{count}</button>
+  return (
+    <div>
+      <button onClick={() => dispatch({type: 'increment', step})}>+</button>
+      <button onClick={() => dispatch({type: 'decrement', step})}>-</button>
+      <div>{count}</div>
+    </div>
+  )
 }
 
 function App() {
