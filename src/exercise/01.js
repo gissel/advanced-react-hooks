@@ -3,7 +3,11 @@
 
 import React from 'react'
 
-const countReducer = (state, action) => ({...state, ...action})
+//we support the function API and the object API
+const countReducer = (state, action) => ({
+  ...state,
+  ...(typeof action === 'function' ? action(state) : action),
+})
 
 function Counter({initialCount = 0, step = 1}) {
   //const [state, dispatch] = useReducer(reducer, initialArg, init);
@@ -11,7 +15,13 @@ function Counter({initialCount = 0, step = 1}) {
     count: initialCount,
   })
   const {count} = state
-  const increment = () => setState({count: count + step})
+
+  // Object API
+  // const increment = () => setState({count: count + step})
+
+  //Function API
+  const increment = () =>
+    setState(currentState => ({count: currentState.count + step}))
 
   return <button onClick={increment}>{count}</button>
 }
