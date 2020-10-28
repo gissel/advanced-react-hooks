@@ -10,7 +10,6 @@ import {
   PokemonErrorBoundary,
 } from '../pokemon'
 
-// 🐨 this is going to be our generic asyncReducer
 function asyncReducer(state, action) {
   switch (action.type) {
     case 'pending': {
@@ -28,8 +27,7 @@ function asyncReducer(state, action) {
   }
 }
 
-// 🐨 so your job is to create a useAsync function that makes this work.
-function useAsync(asyncCallback, initialState, dependencies) {
+function useAsync(asyncCallback, initialState) {
   const [state, dispatch] = React.useReducer(asyncReducer, {
     status: 'idle',
     data: null,
@@ -51,28 +49,18 @@ function useAsync(asyncCallback, initialState, dependencies) {
         dispatch({type: 'rejected', error})
       },
     )
-    // 🐨 you'll accept dependencies as an array and pass that here.
-    // 🐨 because of limitations with ESLint, you'll need to ignore
-    // the react-hooks/exhaustive-deps rule. We'll fix this in an extra credit.
-  }, dependencies)
+  }, [asyncCallback])
 
   return state
 }
 
-// 🐨 move both the useReducer and useEffect hooks to a custom hook called useAsync
 function PokemonInfo({pokemonName}) {
-  const state = useAsync(
-    () => {
-      if (!pokemonName) {
-        return
-      }
-      return fetchPokemon(pokemonName)
-    },
-    {
-      status: pokemonName ? 'pending' : 'idle',
-    },
-    [pokemonName],
-  )
+  const asyncCallback = React.useCallback(() => {
+    if (!pokemonName) {
+      return
+    }
+    return fetchPokemon(pokemonName)
+  }, [pokemonName])
 
   const state = useAsync(asyncCallback, {
     status: pokemonName ? 'pending' : 'idle',
